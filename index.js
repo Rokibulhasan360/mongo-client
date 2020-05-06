@@ -22,7 +22,7 @@ const users = ["asad","saber","javed","kamal"]
 app.get('/products',(req,res) =>{
   MongoClient.connect(uri, function(err, client) {
     const collection = client.db("onlineStore").collection("products");
-    collection.find({name : 'Laptop'}).limit(10).toArray((err,documents) =>{
+    collection.find().toArray((err,documents) =>{
           if(err){
             console.log(err)
           }
@@ -36,14 +36,49 @@ app.get('/products',(req,res) =>{
   });
   
 })
+app.get('/product/:key',(req,res)=>{
+  const key = req.params.key;
+
+
+  MongoClient.connect(uri, function(err, client) {
+    const collection = client.db("onlineStore").collection("products");
+    collection.find({key}).toArray((err,documents) =>{
+          if(err){
+            console.log(err)
+          }
+          else{
+            res.send(documents[0]);
+        
+          }
+          
+         })
+    client.close();
+  });
+  
+});
 
 
 
-app.get('/users/:id',(req,res)=>{
-    const id = req.params.id;
-    const name = users[id];
-    res.send({id,name});
-})
+app.post('/getProductsByKey',(req,res)=>{
+  const key = req.params.key;
+  const productKeys = req.body;
+
+  MongoClient.connect(uri, function(err, client) {
+    const collection = client.db("onlineStore").collection("products");
+    collection.find({key: {$in : productKeys}}).toArray((err,documents) =>{
+          if(err){
+            console.log(err)
+          }
+          else{
+            res.send(documents);
+        
+          }
+          
+         })
+    client.close();
+  });
+  
+});
 
 //post
 app.post('/addProduct',(req,res)=>{
@@ -52,7 +87,7 @@ app.post('/addProduct',(req,res)=>{
 
   MongoClient.connect(uri, function(err, client) {
     const collection = client.db("onlineStore").collection("products");
-    collection.insertOne(product,(err,result) =>{
+    collection.insert(product,(err,result) =>{
           if(err){
             console.log(err)
           }
@@ -65,9 +100,29 @@ app.post('/addProduct',(req,res)=>{
     client.close();
   });
   
+});
+app.post('/placeOrder',(req,res)=>{
+  const orderDetails = req.body;
+ orderDetails.orderTime = new Date();
 
+
+  MongoClient.connect(uri, function(err, client) {
+    const collection = client.db("onlineStore").collection("orders");
+    collection.insert(orderDetails,(err,result) =>{
+          if(err){
+            console.log(err)
+          }
+          else{
+            res.send(result.ops[0]);
+          //  res.status(500).send({message:err});
+          }
+          
+         })
+    client.close();
+  });
   
 });
+
 
 
 
