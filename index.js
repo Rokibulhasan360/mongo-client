@@ -108,7 +108,7 @@ app.post('/placeOrder',(req,res)=>{
 
   MongoClient.connect(uri, function(err, client) {
     const collection = client.db("onlineStore").collection("orders");
-    collection.insert(orderDetails,(err,result) =>{
+    collection.insertOne(orderDetails,(err,result) =>{
           if(err){
             console.log(err)
           }
