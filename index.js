@@ -36,6 +36,25 @@ app.get('/products',(req,res) =>{
   });
   
 })
+
+app.get('/orders',(req,res) =>{
+  MongoClient.connect(uri, function(err, client) {
+    const collection = client.db("onlineStore").collection("orders");
+    collection.find().toArray((err,documents) =>{
+          if(err){
+            console.log(err)
+          }
+          else{
+            res.send(documents);
+        
+          }
+          
+         })
+    client.close();
+  });
+  
+})
+
 app.get('/product/:key',(req,res)=>{
   const key = req.params.key;
 
